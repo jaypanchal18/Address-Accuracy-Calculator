@@ -1,4 +1,0 @@
-streamlit==1.7.1
-pandas==1.4.0
-openpyxl==3.0.9
-python-Levenshtein==0.12.2
