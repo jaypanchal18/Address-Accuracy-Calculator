@@ -1,19 +1,15 @@
 import streamlit as st
 import pandas as pd
 from openpyxl import load_workbook
-import Levenshtein
+from fuzzywuzzy import fuzz
 from io import BytesIO
 
 def calculate_accuracy(address1, address2):
     if address1 is None or address2 is None:
-        return None  # Handle missing values gracefully
+        return None  
     
-    # Calculate Levenshtein distance between two addresses
-    distance = Levenshtein.distance(str(address1).lower(), str(address2).lower())
-    
-    # Normalize distance to get accuracy percentage
-    max_length = max(len(address1), len(address2))
-    accuracy = ((max_length - distance) / max_length) * 100
+    # Use fuzz ratio to calculate similarity between two strings
+    accuracy = fuzz.ratio(address1.lower(), address2.lower())
     
     return accuracy
 
@@ -29,12 +25,10 @@ def main():
         columns = next(data)
         df = pd.DataFrame(data, columns=columns)
 
-        # Apply the function to each row in the DataFrame and create a new column 'Accuracy'
         df['Accuracy'] = df.apply(lambda row: calculate_accuracy(row['Address on doc'], row['Address on visit']), axis=1)
 
         st.write(df)
 
-        # Optionally, you can save the DataFrame with accuracy values to a new Excel file
         if st.button('Download Result'):
             output = BytesIO()
             writer = pd.ExcelWriter(output, engine='openpyxl')
